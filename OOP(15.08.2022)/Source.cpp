@@ -158,12 +158,16 @@ int main() {
 
 	task1(10);
 	
-	/*multimap<std::string, User> searchTree;
-	const auto&[begin, end] = searchTree.equal_range("key");
-	vector<User> names(begin, end);
+	multimap<std::string, User> searchTree;
+
+	auto section = searchTree.equal_range("key");
+	vector<User> names;
+	for (; section.first != section.second; section.first++) {
+		names.push_back(section.first->second);
+	}
 	for (auto& el : names) {
 		std::cout << el << '\n';
-	}*/
+	}
 
 	return 0;
 }
