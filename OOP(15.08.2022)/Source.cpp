@@ -3,18 +3,50 @@
 #include <map>
 #include <vector>
 #include <chrono>
+#include <algorithm>
+#include <cstdlib>
+#include <fstream>
+
+//создать список юзеров на 10.000 элементов.
+// Заполнить элементами коллекции map
+// Сравнить время необходимое на поиск в оригинальной коллекции
+// данных и время на поиск и составление map
+
+//Найти 10 юзеров с максимально близкими к ср. зарплатам
+//записать в файл список юзеров(в режиме дозаписи)
 
 class User {
 public:
 	int id;
 	std::string name;
 	int salary;
-	bool dayShift = true;
+	bool dayShift;
 
-	User(int id, std::string name):id(id), name(name){}
+	User() = default;
+	User(int id, std::string name):id(id), name(name) {
+		salary = ::rand() % (20'000 - 10'000) + 10'000;
+		dayShift = ::rand() % 2;
+	}
+
+	int averageSalary(int mapSize) {
+		int count = 0;
+		for (int i = 0; i < mapSize; i++) {
+			count += this->salary;
+		}
+		return count / mapSize;
+	}
 
 	bool operator==(const User& other)const {
 		return id == other.id && name == other.name;
+	}
+	friend std::ostream& operator<<(std::ostream& out, const User& obj) {
+		out << obj.id << ' ' << obj.name << ' ' << obj.dayShift << ' '
+			<< obj.salary << ' ';
+		return out;
+	}
+	friend std::istream& operator>>(std::istream& in, User& obj) {
+		in >> obj.id >> obj.name >> obj.dayShift >> obj.salary;
+		return in;
 	}
 };
 
@@ -66,10 +98,30 @@ void task1(int count) {
 		(end - begin);
 	std::cout << "Find in map: " <<
 		elapsed_ms.count() << "ms\n";
+
+	std::ofstream out("Текст.txt");
+	for (auto &user : database) {
+		out << user << '\n';
+		std::cout << user << '\n';
+	}
+	out.close();
+
 }
 
 void task2() {
-
+	std::vector<User> database;
+	std::ifstream in("base.txt");
+	while (!in.eof()) {
+		User tmp;
+		in >> tmp;
+		tmp.id = database.size();
+		database.push_back(tmp);
+		in.close();
+		database.pop_back();
+		for (auto& user : database) {
+			std::cout << user << '\n';
+		}
+	}
 }
 
 
@@ -79,6 +131,8 @@ void task2() {
 //at - генерирует исключение, а [] - нет! 
 //pair - хранит два элемента первый и второй. Ключи константные
 //наполнение коллекции(map-а) лучше всего делается с помощью insert.
+
+//multimap
 
 int main() {
 	using namespace std;
@@ -100,19 +154,16 @@ int main() {
 
 	auto &[login, user] = *(g_Users.find("User3")); // разложение структуры
 	user.id;
-
-	//создать список юзеров на 10.000 элементов.
-	// Заполнить элементами коллекции map
-	// Сравнить время необходимое на поиск в оригинальной коллекции
-	// данных и время на поиск и составление map
 	*/
 
-	task1(100'000);
-
-	//Найти ср. зарплату сотрудников всех/дневных/ночных
-	//Найти 10 людей с максимально близким к этому значению показателям
-
-
+	task1(10);
+	
+	/*multimap<std::string, User> searchTree;
+	const auto&[begin, end] = searchTree.equal_range("key");
+	vector<User> names(begin, end);
+	for (auto& el : names) {
+		std::cout << el << '\n';
+	}*/
 
 	return 0;
 }
